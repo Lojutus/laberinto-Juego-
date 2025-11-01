@@ -24,11 +24,62 @@ void Laberinto::inicializarEspacios() {
 
     Console::clearConsole();
     // Inicializar la malla del laberinto con el tamaño especificado
-    malla.resize(tamañoHorizontal, std::vector<int>(tamañoVertical, -1));  // -1 representa un bloque indefinido
+    malla.resize(tamañoHorizontal, std::vector<int>(tamañoVertical, 0));  // 0 representa una pared
 }// crea la malla 
 
+
+
+
+bool Laberinto::verificarNuevoCamino( LaberintoEstructura::Bloque *bloqueAnalizar, int tolerancia) {
+    /*
+        Verifica si un bloque puede ser camino con las siguientes reglas:
+            - es una pared
+            - tiene solo un camino vecino
+            
+    */
+   Bloque* bloqueActual = bloqueAnalizar;  // puntero al bloque actual que nos ayudara a movernos
+    if (getEstadoBloque(*bloqueActual) == 0) { // si el bloque esta como pared
+        
+                std::vector<Bloque> vecinos; // punteros que apuntan a los bloques vecinos
+                // verificar que no se salga de los limites
+                Bloque vecino = *bloqueActual;
+                vecino.fila = bloqueActual->fila + 1;
+                vecino.columna = bloqueActual->columna;
+                if(comprobarBloque(vecino)) vecinos.push_back(vecino);; // abajo
+                
+                vecino.fila = bloqueActual->fila - 1;
+                if(comprobarBloque(vecino)) vecinos.push_back(vecino); // arriba
+                vecino.fila = bloqueActual->fila;
+                vecino.columna = bloqueActual->columna + 1;
+                if(comprobarBloque(vecino)) vecinos.push_back(vecino); // derecha
+                vecino.columna = bloqueActual->columna - 1;
+                if(comprobarBloque(vecino)) vecinos.push_back(vecino); // izquierda
+                int caminosUnidos = 0;
+                
+                for (const auto& vecino : vecinos) {// itera los vecinos para decidir si convertir en camino
+                    //Console::showInfoMessage("Verificando bloque vecino en: (" + std::to_string(vecino.fila) + ", " + std::to_string(vecino.columna) + ")\n");
+                    if (comprobarBloque(vecino) && getEstadoBloque(vecino) == 1) {// verifica que tiene un vecino camino
+                        // tiene un vecino que es camino
+                        //Console::showInfoMessage("Bloque vecino camino encontrado en: (" + std::to_string(vecino.fila) + ", " + std::to_string(vecino.columna) + ")\n");
+                        caminosUnidos++;
+                    }
+                }
+
+            if (caminosUnidos == tolerancia) //verfica que no tenga mas caminos
+            {
+                return true;
+            } else {
+                //Console::showInfoMessage("Bloque rechazado para camino: (" + std::to_string(bloqueActual->fila) + ", " + std::to_string(bloqueActual->columna) + ") tiene " + std::to_string(caminosUnidos) + " caminos unidos.\n");
+                return false;
+            }
+            }
+    return false; 
+            
+    }
+
 void Laberinto::rellenarEspacio() {
-/*
+    // Implementación del método rellenarEspacio
+    /*
     Este algoritmo es un tanto complejo y requiere una comprensión profunda de la estructura del laberinto.
     Se basa en la generación de números aleatorios para determinar la posición de los bloques y su estado.
     Además, se deben tener en cuenta las restricciones del laberinto, como la existencia de caminos y paredes.
@@ -38,135 +89,177 @@ void Laberinto::rellenarEspacio() {
     A continuación, se rellenan los espacios restantes del laberinto de manera aleatoria, asegurando que se mantenga la conectividad del camino.
     Generando caminos aleatorios para los bloques restantes.
     
-*/
-inicializarEspacios();
-
-std::vector<LaberintoEstructura::Bloque> bloquesLlenar = getBloquesIndefinidos();// VECTOR DE BLOQUES A LLENAR
-/*for (size_t i = 0; i < bloquesLlenar.size(); i++)
-{
-    Console::showInfoMessage("Bloque a llenar: (" + std::to_string(bloquesLlenar[i].fila) + ", " + std::to_string(bloquesLlenar[i].columna) + ")"+ "\n");
-}*/
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    size_t indice;
-    size_t indice2;
-
-    if (tamañoHorizontal > dificultad && tamañoVertical > dificultad) {
-        // Establecer bloques importantes los suficientemente difíciles
-        dificultad = std::min(tamañoHorizontal, tamañoVertical) / 2;
-    } // GESTOR DE DIFICULTAD MODIFICAR SI QUIERE 
-
-
-    //Estableceer bloques importantes los suficientemente dificiles
-    do {
-
-        std::uniform_int_distribution<size_t> dist(0, bloquesLlenar.size() - 1);
-        indice = dist(gen);
-        //Establecer spawn
-
-        bloqueSpawn = bloquesLlenar[indice];
-         // 1 representa un bloque lleno
-    // bloquesLlenar.erase(bloquesLlenar.begin() + indice); // EL BLOQUE NO ESTA PARA LLENAR ENTONCES SE QUITA
-
-        // Establecer bloque de salida
-
-        std::uniform_int_distribution<size_t> dist2(0, bloquesLlenar.size() - 1);
-        indice2 = dist2(gen);
-        bloqueSalida = bloquesLlenar[indice2];
-        
-    } while (((bloqueSalida.columna - bloqueSpawn.columna)>dificultad && (bloqueSalida.fila - bloqueSpawn.fila) > dificultad) || (bloqueSalida.columna - bloqueSpawn.columna < -dificultad && bloqueSalida.fila - bloqueSpawn.fila < -dificultad));
-    
-    setEstadoBloque(bloquesLlenar[indice], 1); 
-    setEstadoBloque(bloqueSalida, 1); // CAMBIA EL ESTADO DEL BLOQUE DE ENTRADA Y DE SALIDA
-
-    //bloquesLlenar.erase(bloquesLlenar.begin() + indice2);// EL BLOQUE NO ESTA PARA LLENAR ENTONCES SE QUITA
-
-    //mostrar el bloque de entrada y salida elegido
-    Console::showInfoMessage("Bloque de entrada elegido: (" + std::to_string(bloqueSpawn.fila) + ", " + std::to_string(bloqueSpawn.columna) + ")");
-    Console::showInfoMessage("Bloque de salida elegido: (" + std::to_string(bloqueSalida.fila) + ", " + std::to_string(bloqueSalida.columna) + ")");
-    // CREAR CAMINO ALEATORIO ENTRE ENTRADA Y SALIDA
-
-    /*
-        Apartir de aqui van a ir las reglas de generación del camino aleatorio.
-        Regla de solución:
-            Eligira 50/50 si acercarse horizontalmente. o verticalmente.
-                Si el bloque de salida es menor que el bloque de entrada horizontalmente entonces intentara mover hacia la izquierda, de lo contrario, intentara mover hacia la derecha.
-                Si el bloque de salida es menor que el bloque de entrada verticalmente entonces intentara mover hacia arriba, de lo contrario, intentara mover hacia abajo.
-            hay una pequeña posibilidad de que no se acerque en ninguna dirección eso dependera de la dificultad. 
-            si no se acerca hay una posibilidad de que se mueva aleatoriamente.
-        Reglas de paredes:
-            ...
-        Reglas de caminos:
-            ...
-    
-    
     */
-    Bloque* bloqueActual = &bloqueSpawn;  // puntero al bloque actual que nos ayudara a movernos
-    int i = 0;
-   while (true) {
+    inicializarEspacios();
+
+
+    Console::showInfoMessage("Total de bloques a llenar: " + std::to_string(getBloquesIndefinidos().size()) + "\n");
+
+    std::vector<LaberintoEstructura::Bloque> bloquesLlenar = getBloquesIndefinidos();// VECTOR DE BLOQUES A LLENAR
+    std::random_device rd;
     
-       // elegir en que posicion moverse
-        std::random_device rd;
-       std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> dist(0, bloquesLlenar.size() - 1);
+    size_t indice = dist(gen);
+    bloqueSpawn = bloquesLlenar[indice];
+    setEstadoBloque(bloquesLlenar[indice], 1);
 
-       std::uniform_int_distribution<size_t> dist(0, 1);
-       size_t direccion = dist(gen);
-       std::uniform_int_distribution<size_t> mov(0, dificultad);
-        size_t movimiento = mov(gen);
-        if ((bloqueActual->columna == bloqueSalida.columna && bloqueActual->fila == bloqueSalida.fila)) {
-            Console::showInfoMessage("Bloque alcanzado: (" + std::to_string(bloqueActual->fila) + ", " + std::to_string(bloqueActual->columna) + ")");
+    Bloque* bloqueActual = &bloqueSpawn; 
+
+    std::vector<LaberintoEstructura::Bloque> posiblesCaminos = {}; //vector de punteros a bloques posibles para convertir en camino
+    posiblesCaminos.push_back(*bloqueActual);
+    //posiblesCaminos.push_back((bloqueActual->fila-1) * (tamañoHorizontal-1) + abs((bloqueActual->columna-1))); // puntero al bloque actual que nos ayudara a movernos
+    while(dificultad> tamañoHorizontal * tamañoVertical /10){
+        dificultad = dificultad -1;
+    }
+
+    size_t longitudSolucion = tamañoHorizontal * tamañoVertical;
+    
+    bloqueSalida = crearCamino(longitudSolucion, *bloqueActual);
+    setEstadoBloque(bloqueSalida, 1);
+    Console::showInfoMessage("Bloque de entrada creado en: (" + std::to_string(bloqueSpawn.fila) + ", " + std::to_string(bloqueSpawn.columna) + ")\n");
+    Console::showInfoMessage("Bloque de salida creado en: (" + std::to_string(bloqueSalida.fila) + ", " + std::to_string(bloqueSalida.columna) + ")\n");
+    size_t i = 0;
+    while(!posiblesCaminos.empty()){
+        std::uniform_int_distribution<size_t> dist(0, longitudSolucion);
+        size_t longitudSolucionRand = dist(gen);
+        Bloque posicionFinalCamino = crearCamino(longitudSolucionRand, posiblesCaminos.back()); // el bloque final del camino no lo convierte en camino
+        setEstadoBloque(posicionFinalCamino, 1); // convierte en camino el donde termina el camino
+        if(posicionFinalCamino ==  posiblesCaminos.back()){
+            posiblesCaminos.pop_back();
+        } else {
+            //Console::showInfoMessage("nuevo camino"+ std::to_string(i));
+            posiblesCaminos.push_back(posicionFinalCamino); // no crea mas caminos porque el otro camino no se puede mover , hay que encontrar la solucion a ese problema
+
+        }
+    }
+   
+    
+    
+    
+    //int backUpDireccion = -5; // variable para evitar retroceder en el mismo movimiento
+    
+}
+
+LaberintoEstructura::Bloque Laberinto::crearCamino(size_t longitud, Bloque bloquePos) {
+    // Implementación del método crearCamino
+    
+    for (size_t i = 0; i < longitud; i++) {
+        if(getEstadoBloque(bloquePos) == 0) {// obtiene el estado del bloque actual
+            Console::showInfoMessage("Suministrado no es camino");
+            return bloquePos; // si el bloque es pared , retorna la posicion actual sin crear camino
+        }
+        int direccion = elegirDireccionAleatoria(bloquePos); // 1 derecha , 2 izquierda , -1 abajo , -2 arriba , 0 no se puede mover
+        switch (direccion)
+        {
+        case 1:
+            // mover hacia la derecha
+            
+            bloquePos.fila = bloquePos.fila + 1;
+            setEstadoBloque(bloquePos, 1);
             break;
-        }// Si llega a su destino se va del bucle
+        case 2:
+            // mover hacia la izquierda
+            
+            bloquePos.fila = bloquePos.fila - 1;
+            setEstadoBloque(bloquePos, 1);
+            break;
+        case -1:
+            // mover hacia abajo
+            
+            bloquePos.columna = bloquePos.columna + 1;
+            setEstadoBloque(bloquePos, 1);
+            break;
+        case -2:
+            // mover hacia arriba
+            
+            bloquePos.columna = bloquePos.columna - 1;
+            setEstadoBloque(bloquePos, 1);
+            break;
+        
+        default:
+            break;
+        }
+         
+    }
+    return bloquePos; // retorna la nueva posicion del bloque despues de crear el camino
 
-       if (direccion == 0 ) {
-           // mover Horizontalmente 
-           if(movimiento <= 2) {// si logra moverse bien
-            if(bloqueSalida.columna>bloqueActual->columna){
-                // mover hacia la derecha
-                auto it = std::find(bloquesLlenar.begin(), bloquesLlenar.end(), *bloqueActual);
-                bloqueActual= &bloquesLlenar[it-bloquesLlenar.begin()+1];
+}
+int Laberinto::elegirDireccionAleatoria(Bloque bloqueActual) {
 
-            } else if(bloqueSalida.columna<bloqueActual->columna) {
-                // mover hacia la izquierda
-                auto it = std::find(bloquesLlenar.begin(), bloquesLlenar.end(), *bloqueActual);
-                bloqueActual= &bloquesLlenar[it-bloquesLlenar.begin()-1];
-            }
+            
+            std::uniform_int_distribution<size_t> dist2(0, 3);
+            size_t direccion2 = dist2(gen);
+            
+            
+            for(size_t j=0; j<4; j++){
+                Bloque bloqueBackup = bloqueActual; // guardo la posicion actual del bloque
+                // mover en horizontal
+                if(direccion2==0){
+                    // mover hacia la derecha
+                    bloqueActual.fila = bloqueActual.fila+1; // obtiene la posicion actual
+                    if(verificarNuevoCamino(&bloqueActual, 1))return 1;
+                    bloqueActual = bloqueBackup; // restaurar la posicion original
 
-               
-           } else {
-               // mover aleatoriamente
-               std::uniform_int_distribution<size_t> dist(-1, 1);
-               size_t dir = dist(gen);
-               auto it = std::find(bloquesLlenar.begin(), bloquesLlenar.end(), *bloqueActual);
-               bloqueActual= &bloquesLlenar[it-bloquesLlenar.begin()+dir];
+                } else if(direccion2==1){
+                    // mover hacia la izquierda
+                    bloqueActual.fila = bloqueActual.fila-1;
+                    if(verificarNuevoCamino(&bloqueActual, 1))return 2;
+                    bloqueActual = bloqueBackup; // restaurar la posicion original
+                }
 
-           }
-           //el bloque it-bloquesLlenar.begin() resta dos iteradores ( son como punteros pero mas estables ) para devolver el indice ( que es la diferencia entre estos)
-       } else {
-        if(movimiento <= 2) {// si logra moverse bien
-            if(bloqueSalida.fila>bloqueActual->fila){
+             else if(direccion2==2){ 
                 // mover hacia abajo
-                auto it = std::find(bloquesLlenar.begin(), bloquesLlenar.end(), *bloqueActual);
-                bloqueActual= &bloquesLlenar[it-bloquesLlenar.begin()+tamañoHorizontal];
+                bloqueActual.columna = bloqueActual.columna+1;
+                if(verificarNuevoCamino(&bloqueActual, 1))return -1;
+                bloqueActual = bloqueBackup; // restaurar la posicion original
 
-            } else if(bloqueSalida.fila<bloqueActual->fila) {
-                // mover hacia arriba
-                auto it = std::find(bloquesLlenar.begin(), bloquesLlenar.end(), *bloqueActual);
-                bloqueActual= &bloquesLlenar[it-bloquesLlenar.begin()-tamañoHorizontal];
-            }
+            } else if(direccion2==3){
+            // mover hacia arriba
+                bloqueActual.columna = bloqueActual.columna-1;
+                    if(verificarNuevoCamino(&bloqueActual, 1))return -2;
+                    bloqueActual = bloqueBackup; // restaurar la posicion original
+                }
+                if(direccion2==3){
+                    direccion2=0;
+                } else {
+                    direccion2++;
+                }
 
-               
-           } else {
-               // mover aleatoriamente
-               std::uniform_int_distribution<size_t> dist(-1, 1);
-               size_t dir = dist(gen);
-               auto it = std::find(bloquesLlenar.begin(), bloquesLlenar.end(), *bloqueActual);
-               bloqueActual= &bloquesLlenar[it-bloquesLlenar.begin()+(dir*tamañoHorizontal)];
+    // Implementación del método elegirDireccionAleatoria
+}
+return 0;// no se puede mover
+            } 
 
-           }
-           
-       }
-   }
+void Laberinto::imprimirMalla() {
+    for (const auto& fila : malla) {
+        for (int celda : fila) {
+            if (celda == 0) std::cout << "█";     // pared
+            else if (celda == 1) std::cout << " "; // camino
+            else if (celda == 2) std::cout << "S"; // Start
+            else if (celda == 3) std::cout << "E"; // End
+            else std::cout << "?";                  // valor desconocido
+        }
+        std::cout << "\n";
+    }
+    for (size_t f = 0; f < malla.size(); ++f) {
+    for (size_t c = 0; c < malla[f].size(); ++c) {
+
+        LaberintoEstructura::Bloque actual{(int)f, (int)c};
+
+        // Si es el spawn → 8
+        if (actual == bloqueSpawn) {
+            std::cout << "8 ";
+        }
+        // Si es la salida → 9
+        else if (actual == bloqueSalida) {
+            std::cout << "9 ";
+        }
+        // Si no, imprime la celda original
+        else {
+            std::cout << malla[f][c] << " ";
+        }
+    }
+    std::cout << "\n";
+}
 
 }

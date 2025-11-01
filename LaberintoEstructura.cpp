@@ -32,7 +32,7 @@ int LaberintoEstructura::getEstadoBloque(Bloque bloque) const {
     if (comprobarBloque(bloque)) {
         return malla[bloque.fila][bloque.columna];
     } else {
-        std::cerr << "Error: Bloque fuera de los límites." << std::endl;
+        //std::cerr << "Error: Bloque fuera de los límites." << std::endl;
         return -1;  // Valor por defecto en caso de error
     }
 }
@@ -40,10 +40,11 @@ std::vector<LaberintoEstructura::Bloque> LaberintoEstructura::getBloquesIndefini
     std::vector<Bloque> bloquesIndefinidos;
     for (int i = 0; i < static_cast<int>(malla.size()); ++i) {
         for (int j = 0; j < static_cast<int>(malla[i].size()); ++j) {
-            if (malla[i][j] == -1) {  // -1 representa un bloque indefinido
+            if (malla[i][j] == 0) {  // 0 representa un bloque pared
                 bloquesIndefinidos.push_back({i, j});
             }
         }
     }
     return bloquesIndefinidos;
 }// funcion util para encontrar bloques indefinidos
+

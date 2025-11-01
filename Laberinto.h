@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <random>
 
 /*
 ===============================================================================
@@ -27,17 +28,19 @@ Colaboradores:
 
 class Laberinto:LaberintoEstructura {
 public:
-    int dificultad;
+    int dificultad = 5;
     
     Laberinto();   // Constructor
     ~Laberinto();  // Destructor
     void rellenarEspacio();
+    void imprimirMalla();
      
     
 
 private:
     LaberintoEstructura::Bloque bloqueSpawn;
     LaberintoEstructura::Bloque bloqueSalida;
+    std::mt19937 gen{std::random_device{}()}; // Generador de números aleatorios
 
     void inicializarEspacios();
     
@@ -45,7 +48,9 @@ private:
     void gestionarEntradaUsuario();
     void actualizarLaberinto();
     void iniciarLaberinto();
+    bool verificarNuevoCamino(LaberintoEstructura::Bloque *bloqueAnalizar , int tolerancia);
+    int elegirDireccionAleatoria(Bloque  bloqueActual);
+    Bloque crearCamino(size_t longitud, Bloque bloquePos);
        // Atributos
-};
-
+}; 
 #endif // Laberinto_H

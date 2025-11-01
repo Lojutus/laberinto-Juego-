@@ -13,7 +13,12 @@ int main() {
   Console::showInfoMessage("Bienvenido al programa");
   Console::showInfoMessage("Por favor, ingrese los datos solicitados.");
   
-  laberinto.rellenarEspacio();
+      laberinto.rellenarEspacio();
+      laberinto.imprimirMalla();
 
+      Console::waitForKeyPress();
+
+  
+  
   return 0;
 }
