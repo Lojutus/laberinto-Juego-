@@ -28,7 +28,6 @@ Colaboradores:
 
 class Laberinto:LaberintoEstructura {
 public:
-    int dificultad = 5;
     
     Laberinto();   // Constructor
     ~Laberinto();  // Destructor

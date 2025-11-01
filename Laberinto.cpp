@@ -65,7 +65,7 @@ bool Laberinto::verificarNuevoCamino( LaberintoEstructura::Bloque *bloqueAnaliza
                     }
                 }
 
-            if (caminosUnidos == tolerancia) //verfica que no tenga mas caminos
+            if (caminosUnidos <= tolerancia && caminosUnidos!=0) //verfica que no tenga mas caminos
             {
                 return true;
             } else {
@@ -77,75 +77,12 @@ bool Laberinto::verificarNuevoCamino( LaberintoEstructura::Bloque *bloqueAnaliza
             
     }
 
-void Laberinto::rellenarEspacio() {
-    // Implementación del método rellenarEspacio
-    /*
-    Este algoritmo es un tanto complejo y requiere una comprensión profunda de la estructura del laberinto.
-    Se basa en la generación de números aleatorios para determinar la posición de los bloques y su estado.
-    Además, se deben tener en cuenta las restricciones del laberinto, como la existencia de caminos y paredes.
-
-    Primero se establece un bloque de salida y uno de entrada, y luego se crea un camino aleatorio desde la entrada hasta la salida del laberinto.
-    Este camino se genera utilizando un algoritmo de búsqueda aleatoria que garantiza que haya un camino válido.
-    A continuación, se rellenan los espacios restantes del laberinto de manera aleatoria, asegurando que se mantenga la conectividad del camino.
-    Generando caminos aleatorios para los bloques restantes.
-    
-    */
-    inicializarEspacios();
-
-
-    Console::showInfoMessage("Total de bloques a llenar: " + std::to_string(getBloquesIndefinidos().size()) + "\n");
-
-    std::vector<LaberintoEstructura::Bloque> bloquesLlenar = getBloquesIndefinidos();// VECTOR DE BLOQUES A LLENAR
-    std::random_device rd;
-    
-    std::uniform_int_distribution<size_t> dist(0, bloquesLlenar.size() - 1);
-    size_t indice = dist(gen);
-    bloqueSpawn = bloquesLlenar[indice];
-    setEstadoBloque(bloquesLlenar[indice], 1);
-
-    Bloque* bloqueActual = &bloqueSpawn; 
-
-    std::vector<LaberintoEstructura::Bloque> posiblesCaminos = {}; //vector de punteros a bloques posibles para convertir en camino
-    posiblesCaminos.push_back(*bloqueActual);
-    //posiblesCaminos.push_back((bloqueActual->fila-1) * (tamañoHorizontal-1) + abs((bloqueActual->columna-1))); // puntero al bloque actual que nos ayudara a movernos
-    while(dificultad> tamañoHorizontal * tamañoVertical /10){
-        dificultad = dificultad -1;
-    }
-
-    size_t longitudSolucion = tamañoHorizontal * tamañoVertical;
-    
-    bloqueSalida = crearCamino(longitudSolucion, *bloqueActual);
-    setEstadoBloque(bloqueSalida, 1);
-    Console::showInfoMessage("Bloque de entrada creado en: (" + std::to_string(bloqueSpawn.fila) + ", " + std::to_string(bloqueSpawn.columna) + ")\n");
-    Console::showInfoMessage("Bloque de salida creado en: (" + std::to_string(bloqueSalida.fila) + ", " + std::to_string(bloqueSalida.columna) + ")\n");
-    size_t i = 0;
-    while(!posiblesCaminos.empty()){
-        std::uniform_int_distribution<size_t> dist(0, longitudSolucion);
-        size_t longitudSolucionRand = dist(gen);
-        Bloque posicionFinalCamino = crearCamino(longitudSolucionRand, posiblesCaminos.back()); // el bloque final del camino no lo convierte en camino
-        setEstadoBloque(posicionFinalCamino, 1); // convierte en camino el donde termina el camino
-        if(posicionFinalCamino ==  posiblesCaminos.back()){
-            posiblesCaminos.pop_back();
-        } else {
-            //Console::showInfoMessage("nuevo camino"+ std::to_string(i));
-            posiblesCaminos.push_back(posicionFinalCamino); // no crea mas caminos porque el otro camino no se puede mover , hay que encontrar la solucion a ese problema
-
-        }
-    }
-   
-    
-    
-    
-    //int backUpDireccion = -5; // variable para evitar retroceder en el mismo movimiento
-    
-}
-
 LaberintoEstructura::Bloque Laberinto::crearCamino(size_t longitud, Bloque bloquePos) {
     // Implementación del método crearCamino
     
     for (size_t i = 0; i < longitud; i++) {
         if(getEstadoBloque(bloquePos) == 0) {// obtiene el estado del bloque actual
-            Console::showInfoMessage("Suministrado no es camino");
+            //Console::showInfoMessage("Suministrado no es camino");
             return bloquePos; // si el bloque es pared , retorna la posicion actual sin crear camino
         }
         int direccion = elegirDireccionAleatoria(bloquePos); // 1 derecha , 2 izquierda , -1 abajo , -2 arriba , 0 no se puede mover
@@ -229,6 +166,61 @@ int Laberinto::elegirDireccionAleatoria(Bloque bloqueActual) {
 }
 return 0;// no se puede mover
             } 
+void Laberinto::rellenarEspacio() {
+    // Implementación del método rellenarEspacio
+    /*
+    Este algoritmo es un tanto complejo y requiere una comprensión profunda de la estructura del laberinto.
+    Se basa en la generación de números aleatorios para determinar la posición de los bloques y su estado.
+    Además, se deben tener en cuenta las restricciones del laberinto, como la existencia de caminos y paredes.
+
+    funcionamineto
+        Este metodo colabora con varios otros metodos los cuales su funcionamiento estara explicado en su respectivo espacio ( asi como este)
+        1: Para tener un laberinto al cual llenar  se instancias los espacios 
+        2: Se obtiene todos los bloques los cuales estan sin llenar , que en ese momento de ejecucion son todos 
+        3: utilizando la libreria random se elije un punto de spawn y se establece ese punto como nuestro primer camino ( crucial para mas adelante)
+        4: se establece lo largo de los caminos de acuerdo a la realcion de bloques que hay para llenar, entre mas bloques mas largos los caminos , si se deja un camino muy bajo hay altas posibilidades que no se rellene todo el laberinto
+        5: de aceurdo al primer camino aleatorio generado y el bloque final del camino , se genera el bloque de salida, es decir es totalmente aleatorio
+        6: se muestra la informacion en consola
+        7: Por ultimo se revisa cada uno de los bloques que hay para rellenar , y se llama a la funcion crearcaminoo para que esta verifique si es valido para un camino o no ( si lo es crea un nuevo camino desde ahi )
+        Notas:
+            El fracmento con el bucle que crea ramificaciones , tiene una carga computacional demasiado alta, cuando el laberinto es pequeño se podria dejar con un solo bucle
+            Pero para garantizar que todo el laberinto este lleno independientemente el tamaño, coloque el bucle dos veces . a mi parecer esta en el punto de equilibiro entre calidad y tiempo ( aunque se puede optimizar el algoritmo que escoje las ramificaciones)
+        */
+    inicializarEspacios();
+
+    
+    std::vector<LaberintoEstructura::Bloque> bloquesLlenar = getBloquesIndefinidos();// VECTOR DE BLOQUES A LLENAR
+    std::random_device rd;
+    
+    std::uniform_int_distribution<size_t> dist(0, bloquesLlenar.size() - 1);
+    size_t indice = dist(gen);
+    bloqueSpawn = bloquesLlenar[indice];
+    setEstadoBloque(bloquesLlenar[indice], 1);
+
+    size_t longitudSolucion = tamañoHorizontal * tamañoVertical;
+    
+    bloqueSalida = crearCamino(longitudSolucion, bloqueSpawn);
+    setEstadoBloque(bloqueSalida, 1);
+    Console::showInfoMessage("Bloque de entrada creado en: (" + std::to_string(bloqueSpawn.fila) + ", " + std::to_string(bloqueSpawn.columna) + ")\n");
+    Console::showInfoMessage("Bloque de salida creado en: (" + std::to_string(bloqueSalida.fila) + ", " + std::to_string(bloqueSalida.columna) + ")\n");
+    
+
+    Console::showInfoMessage("Total de bloques a llenar: " + std::to_string(getBloquesIndefinidos().size()) + "\n");
+    Console::showInfoMessage("CARGANDO");
+    
+    for(size_t j = 0 ; j <bloquesLlenar.size(); j++){
+        crearCamino(longitudSolucion, bloquesLlenar[j]);
+        //
+    } 
+    bloquesLlenar = getBloquesIndefinidos();
+
+    for(size_t j = 0 ; j <bloquesLlenar.size(); j++){
+        crearCamino(longitudSolucion, bloquesLlenar[j]);
+        //
+    }   
+    //int backUpDireccion = -5; // variable para evitar retroceder en el mismo movimiento
+    Console::clearConsole();
+}
 
 void Laberinto::imprimirMalla() {
     for (const auto& fila : malla) {
