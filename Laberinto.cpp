@@ -179,7 +179,7 @@ int Laberinto::elegirDireccionAleatoria(Bloque bloqueActual) {
         
         Notas:
          el bloqueBackup sirve para devolverse si la verificion fallo 
-         
+
     
     */
 
@@ -277,7 +277,13 @@ void Laberinto::rellenarEspacio() {
     for(size_t j = 0 ; j <bloquesLlenar.size(); j++){
         crearCamino(longitudSolucion, bloquesLlenar[j]);
         //
-    }   
+    }  
+    bloquesLlenar = getBloquesIndefinidos();
+
+    for(size_t j = 0 ; j <bloquesLlenar.size(); j++){
+        crearCamino(longitudSolucion, bloquesLlenar[j]);
+        //
+    }    
     //int backUpDireccion = -5; // variable para evitar retroceder en el mismo movimiento
     Console::clearConsole();
 }
