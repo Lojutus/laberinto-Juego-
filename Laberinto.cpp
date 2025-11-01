@@ -9,6 +9,12 @@ Laberinto::~Laberinto() {
     // Destructor vacío
 }
 void Laberinto::inicializarEspacios() {
+    /*
+        # Implementacion metodo inicializarEspacios
+        
+        Pide los valores con el que se inicalizara la malla , y cambia su tamaño de aceurdo a esos datos
+    
+    */
     Console::showInfoMessage("Inicializando espacios del laberinto... Ingrese la cantidad de filas:");
     tamañoHorizontal = std::stoi(Console::inputManager());
     
@@ -32,10 +38,24 @@ void Laberinto::inicializarEspacios() {
 
 bool Laberinto::verificarNuevoCamino( LaberintoEstructura::Bloque *bloqueAnalizar, int tolerancia) {
     /*
+        Implementacion metodo verificarNuevoCamino
+
         Verifica si un bloque puede ser camino con las siguientes reglas:
-            - es una pared
-            - tiene solo un camino vecino
-            
+                    - es una pared
+                    - tiene  una cantidad de  caminos vecino menor o igual al de tolerancia
+        Funcionamiento:
+
+        1. revisa si el bloque suministrado es una pared y no un camino 
+
+        2. si es un camino guarda sus vecinos ( arriba, abajo , izquierda , derecha ) todas esos nuevos bloques se guardan en un vector (si la direccion es valida)
+        3. cuenta cuantos de sus vecinos son caminos 
+
+        4. si cumple que tiene menos cantidad o igua cantidad de caminos a la tolerancia suministrada devuelve true
+
+        Notas:
+
+            Si no cumple con la tolerancia devuelve que no es valido
+            Si ya es un camino devuelve que no es valido 
     */
    Bloque* bloqueActual = bloqueAnalizar;  // puntero al bloque actual que nos ayudara a movernos
     if (getEstadoBloque(*bloqueActual) == 0) { // si el bloque esta como pared
@@ -78,7 +98,28 @@ bool Laberinto::verificarNuevoCamino( LaberintoEstructura::Bloque *bloqueAnaliza
     }
 
 LaberintoEstructura::Bloque Laberinto::crearCamino(size_t longitud, Bloque bloquePos) {
-    // Implementación del método crearCamino
+    /*
+        # Implementación del método crearCamino
+
+        Este se encarga de crear un nuevo camino que funciona como una rama ( necesita esta conectado a un camino)
+
+        *Funcionamiento:*
+        1. entra a un bucle que se ejecutara la cantidad de veces establecida en la longitud ( esto no garantiza que el camino tendra esa cantidad de bloques mas adelante se explica el porque )
+        
+        2. Verifica que el bloque de donde se inicia sea un cammino ( si no lo es devuelve el mismo bloque)
+
+        3. elije una direccion a donde moverse de acuerdo al metodo elegirDireccionAleatoria
+
+        4. se mueve hacia la direccion que eligio , y establece ese bloque como camino  ( las verificaciones respecto a si es valido o no lo hace el metodo elegirDireccionAleatoria)
+        
+        ...Repite ese ciclo...
+
+        5. cuando se termina la longitud el algoritmo devuelve el blque donde termino el camino}
+
+        Notas:
+            El metodo elegirDireccionAleatoria puede devolver 0  lo cual significa que no se puede mover a ningun lado , si eso apsa el bucle del camino se detiene , para ahorrar tiempo
+            Al ser aleatorio  el bloque de salida puede estar muy cerca del bloque de spawn sin embargoe so no significa que la cantidad de pasos sea poca 
+    */ 
     
     for (size_t i = 0; i < longitud; i++) {
         if(getEstadoBloque(bloquePos) == 0) {// obtiene el estado del bloque actual
@@ -86,6 +127,9 @@ LaberintoEstructura::Bloque Laberinto::crearCamino(size_t longitud, Bloque bloqu
             return bloquePos; // si el bloque es pared , retorna la posicion actual sin crear camino
         }
         int direccion = elegirDireccionAleatoria(bloquePos); // 1 derecha , 2 izquierda , -1 abajo , -2 arriba , 0 no se puede mover
+        if(direccion==0){
+            break;
+        }
         switch (direccion)
         {
         case 1:
@@ -114,14 +158,30 @@ LaberintoEstructura::Bloque Laberinto::crearCamino(size_t longitud, Bloque bloqu
             break;
         
         default:
+            
             break;
         }
+        
          
     }
     return bloquePos; // retorna la nueva posicion del bloque despues de crear el camino
 
 }
 int Laberinto::elegirDireccionAleatoria(Bloque bloqueActual) {
+    /*
+        #Implementacion Metodo elegiDireccionAleatoria
+
+        Comprueba las 4 direcciones var aver si alguna es valida , si lo es devuelve 1 derecha , 2 izquierda , -1 abajo , -2 arriba y devuelve 0 no se puede mover
+
+        *Funcionamiento:*
+        1. Elije un numero random para decidir en que direccion va a comenzar a revisar
+        2. Entra en un bucle y revisa si la pocion es valida con la funcion verificarNuevoCamino
+        
+        Notas:
+         el bloqueBackup sirve para devolverse si la verificion fallo 
+         
+    
+    */
 
             
             std::uniform_int_distribution<size_t> dist2(0, 3);

@@ -8,6 +8,12 @@ LaberintoEstructura::~LaberintoEstructura() {
     // Destructor vacío
 }
 bool LaberintoEstructura::comprobarBloque(const Bloque& bloque) const {
+    /*
+    # Implemetacion comprobarBLoque
+    Revisa si un bloque esta dentro de la malla
+
+    
+    */
     if (malla.empty() || malla[0].empty()) return false;
     int tamañoFilas = static_cast<int>(malla.size());
     int tamañoColumnas = static_cast<int>(malla[0].size());
@@ -16,6 +22,14 @@ bool LaberintoEstructura::comprobarBloque(const Bloque& bloque) const {
 
 
 void LaberintoEstructura::setEstadoBloque(Bloque bloque, int estado) {
+    /*
+    #Implementacion setEstadoBlqoue
+
+    cambia el estado de un bloque en la malla
+    
+    
+    
+    */
     if (comprobarBloque(bloque)) {
         if(estado==0 || estado==1){
             malla[bloque.fila][bloque.columna] = estado;
@@ -29,6 +43,13 @@ void LaberintoEstructura::setEstadoBloque(Bloque bloque, int estado) {
     }
 }
 int LaberintoEstructura::getEstadoBloque(Bloque bloque) const {
+    /*
+        # Implementacion getEstadoBloque
+        verifica si el bloque exite en la malla y devuelve el valor
+
+    
+    
+    */
     if (comprobarBloque(bloque)) {
         return malla[bloque.fila][bloque.columna];
     } else {
@@ -36,7 +57,14 @@ int LaberintoEstructura::getEstadoBloque(Bloque bloque) const {
         return -1;  // Valor por defecto en caso de error
     }
 }
+
 std::vector<LaberintoEstructura::Bloque> LaberintoEstructura::getBloquesIndefinidos() const {
+    /*
+    # Implementacion getBloquesIndefinidos
+
+    Itera toda la malla y devuelve los bloques que tenga de valor 0
+    
+    */
     std::vector<Bloque> bloquesIndefinidos;
     for (int i = 0; i < static_cast<int>(malla.size()); ++i) {
         for (int j = 0; j < static_cast<int>(malla[i].size()); ++j) {
