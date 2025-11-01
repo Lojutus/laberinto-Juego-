@@ -25,7 +25,7 @@ clean:
 # GoogleTest build
 TEST_BIN = test_runner
 TEST_SRC = tests/test_main.cpp
-TEST_DEPS = ClaseA.cpp 
+TEST_DEPS = Laberinto.cpp LaberintoEstructura.cpp Console.cpp
 
 google-test: $(TEST_BIN)
 	./$(TEST_BIN)

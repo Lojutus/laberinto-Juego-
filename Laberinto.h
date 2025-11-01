@@ -31,9 +31,10 @@ public:
     
     Laberinto();   // Constructor
     ~Laberinto();  // Destructor
-    void rellenarEspacio();
+    bool rellenarEspacio();
     void imprimirMalla();
-     
+    void inicializarEspacios(int tamañoH , int tamañoV);
+    
     
 
 private:
@@ -41,14 +42,15 @@ private:
     LaberintoEstructura::Bloque bloqueSalida;
     std::mt19937 gen{std::random_device{}()}; // Generador de números aleatorios
 
-    void inicializarEspacios();
     
     void mostrarLaberinto();
     void gestionarEntradaUsuario();
     void actualizarLaberinto();
     void iniciarLaberinto();
+
     bool verificarNuevoCamino(LaberintoEstructura::Bloque *bloqueAnalizar , int tolerancia);
     int elegirDireccionAleatoria(Bloque  bloqueActual);
+
     Bloque crearCamino(size_t longitud, Bloque bloquePos);
        // Atributos
 }; 

@@ -8,27 +8,26 @@ Laberinto::Laberinto() {
 Laberinto::~Laberinto() {
     // Destructor vacío
 }
-void Laberinto::inicializarEspacios() {
+void Laberinto::inicializarEspacios(int tamañoH , int tamañoV) {
     /*
         # Implementacion metodo inicializarEspacios
         
-        Pide los valores con el que se inicalizara la malla , y cambia su tamaño de aceurdo a esos datos
+        crea la malla
     
     */
-    Console::showInfoMessage("Inicializando espacios del laberinto... Ingrese la cantidad de filas:");
-    tamañoHorizontal = std::stoi(Console::inputManager());
     
-    Console::showInfoMessage("Ingrese la cantidad de columnas:");
-    tamañoVertical = std::stoi(Console::inputManager());
+    tamañoHorizontal = tamañoH;
+    
+    tamañoVertical = tamañoV;
+
     if (tamañoHorizontal > 10 && tamañoVertical > 10) {
         Console::showInfoMessage("Espacios inicializados.");
     } else {
         Console::showInfoMessage("Tamaño inválido. Los valores deben ser mayores que diez.");
     }
 
-    Console::waitForKeyPress();
-
-    Console::clearConsole();
+    
+    //Console::clearConsole();
     // Inicializar la malla del laberinto con el tamaño especificado
     malla.resize(tamañoHorizontal, std::vector<int>(tamañoVertical, 0));  // 0 representa una pared
 }// crea la malla 
@@ -226,7 +225,7 @@ int Laberinto::elegirDireccionAleatoria(Bloque bloqueActual) {
 }
 return 0;// no se puede mover
             } 
-void Laberinto::rellenarEspacio() {
+bool Laberinto::rellenarEspacio() {
     // Implementación del método rellenarEspacio
     /*
     Este algoritmo es un tanto complejo y requiere una comprensión profunda de la estructura del laberinto.
@@ -246,7 +245,8 @@ void Laberinto::rellenarEspacio() {
             El fracmento con el bucle que crea ramificaciones , tiene una carga computacional demasiado alta, cuando el laberinto es pequeño se podria dejar con un solo bucle
             Pero para garantizar que todo el laberinto este lleno independientemente el tamaño, coloque el bucle dos veces . a mi parecer esta en el punto de equilibiro entre calidad y tiempo ( aunque se puede optimizar el algoritmo que escoje las ramificaciones)
         */
-    inicializarEspacios();
+    if (malla.empty() || malla[0].empty()) return 0;
+    
 
     
     std::vector<LaberintoEstructura::Bloque> bloquesLlenar = getBloquesIndefinidos();// VECTOR DE BLOQUES A LLENAR
@@ -261,11 +261,11 @@ void Laberinto::rellenarEspacio() {
     
     bloqueSalida = crearCamino(longitudSolucion, bloqueSpawn);
     setEstadoBloque(bloqueSalida, 1);
-    Console::showInfoMessage("Bloque de entrada creado en: (" + std::to_string(bloqueSpawn.fila) + ", " + std::to_string(bloqueSpawn.columna) + ")\n");
+    /*Console::showInfoMessage("Bloque de entrada creado en: (" + std::to_string(bloqueSpawn.fila) + ", " + std::to_string(bloqueSpawn.columna) + ")\n");
     Console::showInfoMessage("Bloque de salida creado en: (" + std::to_string(bloqueSalida.fila) + ", " + std::to_string(bloqueSalida.columna) + ")\n");
     
 
-    Console::showInfoMessage("Total de bloques a llenar: " + std::to_string(getBloquesIndefinidos().size()) + "\n");
+    Console::showInfoMessage("Total de bloques a llenar: " + std::to_string(getBloquesIndefinidos().size()) + "\n");*/
     Console::showInfoMessage("CARGANDO");
     
     for(size_t j = 0 ; j <bloquesLlenar.size(); j++){
@@ -282,10 +282,16 @@ void Laberinto::rellenarEspacio() {
 
     for(size_t j = 0 ; j <bloquesLlenar.size(); j++){
         crearCamino(longitudSolucion, bloquesLlenar[j]);
-        //
-    }    
+        
+    }  
+    bloquesLlenar = getBloquesIndefinidos();
+    for(size_t j = 0 ; j <bloquesLlenar.size(); j++){
+        crearCamino(longitudSolucion, bloquesLlenar[j]);
+        
+    }     
     //int backUpDireccion = -5; // variable para evitar retroceder en el mismo movimiento
-    Console::clearConsole();
+    //Console::clearConsole();
+    return 1;
 }
 
 void Laberinto::imprimirMalla() {

@@ -62,7 +62,7 @@ el mt19937 es el motor de generador de numeros aleatorios
 
 # Implementacion metodo inicializarEspacios
         
-Pide los valores con el que se inicalizara la malla , y cambia su tamaño de aceurdo a esos datos
+crea la malla
     
 
 # Implementacion metodo verificarNuevoCamino
