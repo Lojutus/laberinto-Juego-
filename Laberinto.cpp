@@ -22,14 +22,15 @@ void Laberinto::inicializarEspacios(int tamañoH , int tamañoV) {
 
     if (tamañoHorizontal > 10 && tamañoVertical > 10) {
         Console::showInfoMessage("Espacios inicializados.");
+        // Inicializar la malla del laberinto con el tamaño especificado
+        malla.resize(tamañoHorizontal, std::vector<int>(tamañoVertical, 0));  // 0 representa una pared
     } else {
         Console::showInfoMessage("Tamaño inválido. Los valores deben ser mayores que diez.");
     }
 
     
     //Console::clearConsole();
-    // Inicializar la malla del laberinto con el tamaño especificado
-    malla.resize(tamañoHorizontal, std::vector<int>(tamañoVertical, 0));  // 0 representa una pared
+    
 }// crea la malla 
 
 
@@ -59,7 +60,7 @@ bool Laberinto::verificarNuevoCamino( LaberintoEstructura::Bloque *bloqueAnaliza
    Bloque* bloqueActual = bloqueAnalizar;  // puntero al bloque actual que nos ayudara a movernos
     if (getEstadoBloque(*bloqueActual) == 0) { // si el bloque esta como pared
         
-                std::vector<Bloque> vecinos; // punteros que apuntan a los bloques vecinos
+                std::vector<Bloque> vecinos; // apuntan a los bloques vecinos
                 // verificar que no se salga de los limites
                 Bloque vecino = *bloqueActual;
                 vecino.fila = bloqueActual->fila + 1;
@@ -294,8 +295,41 @@ bool Laberinto::rellenarEspacio() {
     return 1;
 }
 
-void Laberinto::imprimirMalla() {
-    for (const auto& fila : malla) {
+void Laberinto::imprimirMalla(int modo, Bloque Jugador) {
+    if(modo==1){
+        for (size_t f = 0; f < malla.size(); ++f) {
+        for (size_t c = 0; c < malla[f].size(); ++c) {
+
+            LaberintoEstructura::Bloque actual;
+            actual.fila = f;
+            actual.columna =c;
+            if(Jugador == actual){
+                std::cout<<"P";
+
+            }
+            // Si es el spawn → s
+            else if (actual == bloqueSpawn) {
+                std::cout << "S";
+            }
+            // Si es la salida → e
+            else if (actual == bloqueSalida) {
+                std::cout << "E";
+            }
+            // Si no, imprime la celda original
+            else {
+                if ( malla[f][c] == 1){
+                    std::cout <<  " ";
+                }
+                else if(malla[f][c] == 0){
+                     std::cout <<  "█";
+
+                }
+                
+            }
+        }
+        std::cout << "\n";
+    }
+    /*for (const auto& fila : malla) {
         for (int celda : fila) {
             if (celda == 0) std::cout << "█";     // pared
             else if (celda == 1) std::cout << " "; // camino
@@ -305,25 +339,43 @@ void Laberinto::imprimirMalla() {
         }
         std::cout << "\n";
     }
-    for (size_t f = 0; f < malla.size(); ++f) {
-    for (size_t c = 0; c < malla[f].size(); ++c) {
+        */
+}
+else{
+    Console::showInfoMessage("8 ACTUAL ; 9 FINAL ");
 
-        LaberintoEstructura::Bloque actual{(int)f, (int)c};
 
-        // Si es el spawn → 8
-        if (actual == bloqueSpawn) {
-            std::cout << "8 ";
+        for (size_t f = 0; f < malla.size(); ++f) {
+        for (size_t c = 0; c < malla[f].size(); ++c) {
+
+            LaberintoEstructura::Bloque actual;
+            actual.fila = f;
+            actual.columna =c;
+            // Si es el spawn → 8
+            if(Jugador == actual){
+                std::cout<<"P ";
+
+            }
+            else if (actual == bloqueSpawn) {
+                std::cout << "8 ";
+            }
+            // Si es la salida → 9
+            else if (actual == bloqueSalida) {
+                std::cout << "9 ";
+            }
+            // Si no, imprime la celda original
+            else {
+                std::cout << malla[f][c] << " ";
+            }
         }
-        // Si es la salida → 9
-        else if (actual == bloqueSalida) {
-            std::cout << "9 ";
-        }
-        // Si no, imprime la celda original
-        else {
-            std::cout << malla[f][c] << " ";
-        }
+        std::cout << "\n";
     }
-    std::cout << "\n";
+}
 }
 
+LaberintoEstructura::Bloque Laberinto::getBloqueSpawn(){
+    return bloqueSpawn;
+}
+LaberintoEstructura::Bloque Laberinto::getBloqueSalida(){
+    return bloqueSalida;
 }

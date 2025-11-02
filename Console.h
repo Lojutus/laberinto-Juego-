@@ -12,6 +12,7 @@ class Console {
         static void showInfoMessage(const char* message);
         static std::string inputManager();
         
+        
     private:
     
 };

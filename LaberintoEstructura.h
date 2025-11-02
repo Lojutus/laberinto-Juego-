@@ -25,32 +25,38 @@ Colaboradores:
 */
 
 class LaberintoEstructura {
-    protected:
+    
+    public:
         struct Bloque {
-            int fila;
-            int columna;
-            bool operator==(const Bloque& other) const {
-                return fila == other.fila && columna == other.columna;
-            }//Defino el operado == para mi struct Bloque 
-        };
+                int fila;
+                int columna;
+                bool operator==(const Bloque& other) const {
+                    return fila == other.fila && columna == other.columna;
+                }//Defino el operado == para mi struct Bloque 
+                bool operator!=(const Bloque& other)const{
+                    return fila!=other.fila || columna!= other.columna;
+                }
+            };
+        bool comprobarBloque(const Bloque& bloque) const;
+        int getEstadoBloque(Bloque bloque) const;
+        LaberintoEstructura();   // Constructor
+        ~LaberintoEstructura();  // Destructor
+        
+    protected:
+        
         
         int tamañoHorizontal;
         int tamañoVertical;
         std::vector<std::vector<int>> malla; // Malla del laberinto
-        bool comprobarBloque(const Bloque& bloque) const;
+       
         void añadirFila(const std::vector<int>& fila);
         void setEstadoBloque(Bloque bloque , int estado);
-        int getEstadoBloque(Bloque bloque) const;
+        
         std::vector<Bloque> getBloquesIndefinidos() const;
 
 
-    public:
-        LaberintoEstructura();   // Constructor
-        ~LaberintoEstructura();  // Destructor
-        
-    private:
 
-        // Atributos
+        
 
 };
 

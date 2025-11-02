@@ -32,8 +32,8 @@ void runLaberintoTest(int filas, int columnas) {
          << " se generó en: " << duration << " ms\n";
 }
 
-TEST_F(LaberintoPerformanceTest, Size_10000x10000) {
-    runLaberintoTest(10000, 10000);
+TEST_F(LaberintoPerformanceTest, Size_100000x100000) {
+    runLaberintoTest(100000, 100000);
 }
 
 

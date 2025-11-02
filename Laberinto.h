@@ -26,28 +26,29 @@ Colaboradores:
 ===============================================================================
 */
 
-class Laberinto:LaberintoEstructura {
+class Laberinto: public LaberintoEstructura {
 public:
     
     Laberinto();   // Constructor
     ~Laberinto();  // Destructor
     bool rellenarEspacio();
-    void imprimirMalla();
+    void imprimirMalla(int modo, Bloque Jugador);
     void inicializarEspacios(int tamañoH , int tamañoV);
-    
+    Bloque getBloqueSpawn();
+    Bloque getBloqueSalida();
     
 
-private:
+protected:
     LaberintoEstructura::Bloque bloqueSpawn;
     LaberintoEstructura::Bloque bloqueSalida;
+    
     std::mt19937 gen{std::random_device{}()}; // Generador de números aleatorios
 
     
     void mostrarLaberinto();
     void gestionarEntradaUsuario();
     void actualizarLaberinto();
-    void iniciarLaberinto();
-
+    
     bool verificarNuevoCamino(LaberintoEstructura::Bloque *bloqueAnalizar , int tolerancia);
     int elegirDireccionAleatoria(Bloque  bloqueActual);
 
